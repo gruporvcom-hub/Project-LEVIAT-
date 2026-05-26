@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// SUAS CHAVES DO PROJETO LEVI
 const firebaseConfig = {
   apiKey: "AIzaSyCDS9f64ipLVNi9E4JUY7QRfA5WG6YvqzQ",
   authDomain: "levi-7f46e.firebaseapp.com",
@@ -15,107 +16,128 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Seleção de Elementos UI
 const userEmailSpan = document.getElementById("userEmail");
 const btnSair = document.getElementById("btnSair");
 const btnSalvarAlvo = document.getElementById("btnSalvarAlvo");
 const listaAlvosDiv = document.getElementById("listaAlvos");
-const statusForm = document.getElementById("status-form");
+const totalLinksH2 = document.getElementById("total-links");
 
 let usuarioAtual = null;
 
+// Observador de Autenticação
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "index.html";
     } else {
         usuarioAtual = user;
         userEmailSpan.innerText = user.email;
-        carregarAlvos();
+        escutarAlvos(); // Inicia a escuta em tempo real
     }
 });
 
-btnSair.addEventListener("click", () => {
-    signOut(auth).then(() => {
-        window.location.href = "index.html";
-    });
-});
+// Logout
+btnSair.addEventListener("click", () => signOut(auth));
 
+// Salvar Novo Alvo
 btnSalvarAlvo.addEventListener("click", async () => {
     const titulo = document.getElementById("vaga-titulo").value.trim();
     const cor = document.getElementById("vaga-cor").value;
     const videoId = document.getElementById("vaga-video").value.trim();
-    const instrucoes = document.getElementById("vaga-msg").value.trim();
+    const msg = document.getElementById("vaga-msg").value.trim();
 
-    if(!titulo || !videoId || !instrucoes) {
-        statusForm.innerHTML = "❌ Preencha todos os campos obrigatórios.";
-        return;
-    }
+    if(!titulo || !videoId) return alert("Preencha o título e o vídeo!");
 
     try {
-        btnSalvarAlvo.disabled = true;
-        statusForm.innerHTML = "🟡 Gravando no banco de dados...";
-
         await addDoc(collection(db, "alvos"), {
             company_id: usuarioAtual.uid,
-            titulo: titulo,
-            cor: cor,
-            video_id: videoId,
-            instrucoes: instrucoes,
+            titulo, cor, video_id: videoId, instrucoes: msg,
             dataCriacao: serverTimestamp()
         });
-
-        statusForm.innerHTML = "✅ Alvo criado com sucesso!";
-        document.getElementById("vaga-titulo").value = "";
-        document.getElementById("vaga-video").value = "";
-        document.getElementById("vaga-msg").value = "";
-        
-        carregarAlvos();
-    } catch (e) {
-        console.error(e);
-        statusForm.innerHTML = "❌ Falha ao criar alvo.";
-    } finally {
-        btnSalvarAlvo.disabled = false;
-    }
+        alert("Link gerado com sucesso!");
+    } catch (e) { console.error(e); }
 });
 
-async function carregarAlvos() {
-    if(!usuarioAtual) return;
-    try {
-        const q = query(collection(db, "alvos"), where("company_id", "==", usuarioAtual.uid));
-        const querySnapshot = await getDocs(q);
-        
-        if(querySnapshot.empty) {
-            listaAlvosDiv.innerHTML = "<p style='color: #94a3b8; text-align: center;'>Nenhum alvo ativo encontrado.</p>";
-            return;
-        }
-
+// Escuta em tempo real dos Alvos daquela Empresa
+function escutarAlvos() {
+    const q = query(collection(db, "alvos"), where("company_id", "==", usuarioAtual.uid));
+    
+    onSnapshot(q, (snapshot) => {
+        totalLinksH2.innerText = snapshot.size;
         listaAlvosDiv.innerHTML = "";
-        querySnapshot.forEach((doc) => {
-            const dados = doc.data();
+        
+        snapshot.forEach((doc) => {
+            const data = doc.data();
             const urlVaga = `${window.location.origin}${window.location.pathname.replace('painel.html', 'vaga.html')}?id=${doc.id}`;
             
-            const item = document.createElement("div");
-            item.className = "item-alvo";
-            item.innerHTML = `
+            const div = document.createElement("div");
+            div.className = "target-item";
+            div.innerHTML = `
                 <div>
-                    <strong>${dados.titulo}</strong>
-                    <p>ID: ${doc.id}</p>
+                    <strong>${data.titulo}</strong>
+                    <div class="target-meta">ID: ${doc.id} | Vídeo: ${data.video_id}</div>
                 </div>
-                <button class="btn-copy" data-link="${urlVaga}">Copiar Link</button>
+                <button class="btn-action" onclick="navigator.clipboard.writeText('${urlVaga}'); alert('Link copiado!')">
+                    COPIAR LINK
+                </button>
             `;
-            listaAlvosDiv.appendChild(item);
+            listaAlvosDiv.appendChild(div);
         });
+    });
+}
 
-        document.querySelectorAll(".btn-copy").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                const link = e.target.getAttribute("data-link");
-                navigator.clipboard.writeText(link);
-                e.target.innerText = "Copiado!";
-                setTimeout(() => { btn.innerText = "Copiar Link"; }, 2000);
-            });
-        });
+#### 2. `script.js` (O Motor da Vaga/Candidato)
+*Este arquivo torna o link do candidato funcional e inteligente.*
 
-    } catch (e) {
-        console.error(e);
-        listaAlvosDiv.innerHTML = "<p style='color: #ef4444;'>Erro ao carregar links ativos.</p>";
+```javascript
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// CHAVES LEVI
+const firebaseConfig = {
+  apiKey: "AIzaSyCDS9f64ipLVNi9E4JUY7QRfA5WG6YvqzQ",
+  authDomain: "levi-7f46e.firebaseapp.com",
+  projectId: "levi-7f46e",
+  storageBucket: "levi-7f46e.firebasestorage.app",
+  messagingSenderId: "1007406602576",
+  appId: "1:1007406602576:web:faa333338264df31317455"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const alvoId = params.get('id');
+
+async function carregarConfiguracoes() {
+    if(!alvoId) return;
+    
+    const docRef = doc(db, "alvos", alvoId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Aplica a Identidade Visual da Empresa
+        document.getElementById('titulo-vaga').innerText = data.titulo;
+        document.getElementById('mensagem-vaga').innerText = data.instrucoes;
+        document.getElementById('video-container').innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${data.video_id}?autoplay=1&mute=1" frameborder="0" allow="autoplay" allowfullscreen></iframe>
+        `;
+        
+        // Estilo Dinâmico
+        const btn = document.getElementById('btn');
+        btn.style.background = `linear-gradient(90deg, ${data.cor}, #16a34a)`;
     }
 }
+
+carregarConfiguracoes();
+// (A lógica de captura da câmera que já tínhamos continua abaixo deste código)
+
+**O que fazer agora para finalizar:**
+1. Atualize o `painel.js` e o `script.js` no seu GitHub com estes códigos acima.
+2. Certifique-se de que o e-mail e senha que você criou no Firebase estão ativos.
+3. Acesse o seu site, faça o login, crie um "Alvo" e clique em **COPIAR LINK**.
+4. Cole esse link em uma nova aba e veja a mágica acontecer: a página vai carregar exatamente o que você configurou no painel!
+
+Seu SaaS agora é funcional. Qual a próxima funcionalidade que você quer adicionar? Gráficos de barra reais no Dashboard?
