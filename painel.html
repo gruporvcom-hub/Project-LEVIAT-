@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrativo - Gestão de Alvos</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: #020617;
+            font-family: Arial, sans-serif;
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container-painel {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            padding: 30px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+        .header-painel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        h1 { font-size: 28px; margin: 0; }
+        .user-info { color: #94a3b8; font-size: 14px; }
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .grid-painel {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        @media (min-width: 768px) {
+            .grid-painel { grid-template-columns: 1fr 1fr; }
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 20px;
+        }
+        .card h3 { margin-top: 0; color: #22c55e; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: #020617;
+            color: white;
+            box-sizing: border-box;
+        }
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(34,197,94,0.2);
+        }
+        .item-alvo {
+            background: #020617;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-alvo strong { color: #f8fafc; }
+        .item-alvo p { margin: 5px 0 0 0; font-size: 13px; color: #94a3b8; }
+        .btn-copy {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="container-painel">
+        <div class="header-painel">
+            <div>
+                <h1>Painel de Controle</h1>
+                <div class="user-info">Sessão ativa: <span id="userEmail" style="color: #22c55e;">...</span></div>
+            </div>
+            <button class="btn-logout" id="btnSair">SAIR</button>
+        </div>
+
+        <div class="grid-painel">
+            <div class="card">
+                <h3>+ Configurar Novo Alvo (Vaga)</h3>
+                <input type="text" id="vaga-titulo" placeholder="Título da Vaga (ex: Motorista Categoria D)">
+                <input type="color" id="vaga-cor" value="#22c55e" style="height: 45px; padding: 2px; cursor: pointer;">
+                <input type="text" id="vaga-video" placeholder="ID do Vídeo do YouTube (ex: 7HRFgitt1jg)">
+                <textarea id="vaga-msg" rows="3" placeholder="Mensagem / Instruções para o candidato"></textarea>
+                <button class="btn-primary" id="btnSalvarAlvo">GERAR LINK DA VAGA</button>
+                <div id="status-form" style="margin-top: 10px; font-size: 14px; text-align: center;"></div>
+            </div>
+
+            <div class="card">
+                <h3>Links Ativos (Alvos)</h3>
+                <div id="listaAlvos">
+                    <p style="color: #94a3b8; text-align: center;">Carregando os seus alvos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="painel.js"></script>
+</body>
+</html>
