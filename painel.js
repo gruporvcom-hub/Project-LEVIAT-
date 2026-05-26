@@ -3,12 +3,12 @@ import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/fi
 import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA4tZjjfiOauLn2PPxYAp6ylNqB9LWJkI0",
-  authDomain: "rv-grup.firebaseapp.com",
-  projectId: "rv-grup",
-  storageBucket: "rv-grup.firebasestorage.app",
-  messagingSenderId: "1061419825993",
-  appId: "1:1061419825993:web:5cb7b020efd40b8cf13898"
+  apiKey: "AIzaSyCDS9f64ipLVNi9E4JUY7QRfA5WG6YvqzQ",
+  authDomain: "levi-7f46e.firebaseapp.com",
+  projectId: "levi-7f46e",
+  storageBucket: "levi-7f46e.firebasestorage.app",
+  messagingSenderId: "1007406602576",
+  appId: "1:1007406602576:web:faa333338264df31317455"
 };
 
 const app = initializeApp(firebaseConfig);
